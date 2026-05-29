@@ -39,8 +39,7 @@
                                     <td class="border px-4 py-2">{{ $envio->PRESTACION }}</td>
                                     <td class="border px-4 py-2">{{ $envio->FECHACREACION }}</td>
                                     <td class="border px-4 py-2">
-                                        <a href="{{ asset('storage/' . $envio->DOCUMENTACION) }}"
-                                            target="_blank"
+                                        <a href="{{ asset('storage/' . str_replace('public/', '', $envio->DOCUMENTACION)) }}"
                                             download
                                             class="text-blue-600 underline">
                                             Descargar documento
