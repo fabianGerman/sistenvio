@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controlador_Envio;
 use App\Http\Controllers\Controlador_Usuario;
-USE App\Http\Controllers\Controlador_Afiliado;
+use App\Http\Controllers\Controlador_Afiliado;
 use App\Http\Controllers\Controlador_ObraSocial;
 use App\Http\Controllers\Controlador_Prestador;
 use App\Http\Controllers\Controlador_Rol;
@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function(){
 
     Route::get('/envio/comprobante',[Controlador_Envio::class,'comprobante'])->name('envio.comprobante');
     Route::match(['get','post'],'/envio/buscar',[Controlador_Envio::class,'buscar'])->name('envio.buscar');
+    Route::get('/envio/descargar/{id}', [Controlador_Envio::class, 'descargarDocumento'])->name('envio.descargar');
 });
 
 Route::middleware('auth')->group(function(){

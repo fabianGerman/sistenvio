@@ -67,7 +67,7 @@ class Controlador_Envio extends Controller
         $archivo_nombre = time() . '_' . $archivo->getClientOriginalName();
 
         $archivo_path = $archivo->storeAs(
-            'public/documentos',
+            'documentos',
             $archivo_nombre,
             'public'
         );
@@ -338,5 +338,23 @@ class Controlador_Envio extends Controller
     return redirect()
         ->route('envio.index')
         ->with('comprobante_url', $pdfUrl);
+    }
+
+    public function descargarDocumento(int $id)
+    {
+        $envio = Envio::find($id);
+
+    if (!$envio) {
+        abort(404, 'Envio no encontrado');
+    }
+
+    $ruta = storage_path('app/public/' . $envio->env_documento);
+
+    if (!file_exists($ruta)) {
+        abort(404, 'Archivo no encontrado');
+    }
+
+    return response()->download($ruta);
+
     }
 }
