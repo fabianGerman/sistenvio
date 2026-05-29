@@ -68,7 +68,8 @@ class Controlador_Envio extends Controller
 
         $archivo_path = $archivo->storeAs(
             'public/documentos',
-            $archivo_nombre
+            $archivo_nombre,
+            'public'
         );
 
         /*
