@@ -47,7 +47,7 @@ class Controlador_Envio extends Controller
             'prestador' => 'required',
             'afiliado' => 'required',
             'prestacion' => 'required',
-            'documentacion' => 'required|file'
+            'documentacion' => 'required|file|mimes:pdf,zip,rar|max:20480'
         ]);
 
         $obrasocial = $request->input('obrasocial');
