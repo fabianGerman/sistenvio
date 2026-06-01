@@ -26,7 +26,7 @@
                 <x-jet-label for="id" value="{{ __('Id') }}" />
                 <x-jet-input id="id" class="block mt-1 w-full" type="number" name="id" value="{{ $usuario->id }}" required autofocus autocomplete="name" />
             </div>
-            
+
             <div>
                 <x-jet-label for="name" value="{{ __('Usuario') }}" />
                 <x-jet-input id="name" class="block mt-1 w-full" type="text" name="name" value="{{ $usuario->name }}" required autofocus autocomplete="name" />
@@ -37,10 +37,7 @@
                 <x-jet-input id="email" class="block mt-1 w-full" type="email" name="email" value="{{ $usuario->email }}" required />
             </div>
 
-            <div class="mt-4">
-                <x-jet-label for="password" value="{{ __('Contraseña') }}" />
-                <x-jet-input id="password" class="block mt-1 w-full" type="password" name="password" autocomplete="new-password" />
-            </div>
+
 
             <div class="mt-4">
                 <x-jet-label for="estado" value="{{ __('Estado') }}" />
@@ -48,40 +45,15 @@
             </div>
 
             <div class="mt-4">
-                <x-jet-label for="rol" value="{{ __('Rol') }}" />
-                <x-jet-input id="rol" class="block mt-1 w-full" type="text" name="rol" value="{{ $usuario->rol }}" required />
-            </div>
-
-            <div>
-                <x-jet-label for="documento" value="{{ __('Documento') }}" />
-                <x-jet-input id="documento" class="block mt-1 w-full" type="text" name="documento" value="{{ $persona->per_documento }}" required autofocus autocomplete="documento" />
-            </div>
-
-            <div>
-                <x-jet-label for="nombre" value="{{ __('Nombre') }}" />
-                <x-jet-input id="nombre" class="block mt-1 w-full" type="text" name="nombre" value="{{ $persona->per_nombres }}" required autofocus autocomplete="nombre" />
-            </div>
-
-            <div>
-                <x-jet-label for="instituto" value="{{ __('Instituto') }}" />
-                <x-jet-input id="instituto" class="block mt-1 w-full" type="text" name="instituto" value="{{ $persona->per_instituto }}" required autofocus autocomplete="instituto" />
-            </div>
-
-            <div>
-                <x-jet-label for="direccion" value="{{ __('Direccion') }}" />
-                <x-jet-input id="direccion" class="block mt-1 w-full" type="text" name="direccion" value="{{ $persona->per_direccion }}" required autofocus autocomplete="direccion" />
-            </div>
-
-            <div>
-                <x-jet-label for="telefono" value="{{ __('Telefono') }}" />
-                <x-jet-input id="telefono" class="block mt-1 w-full" type="text" name="telefono" value="{{ $persona->per_telefono }}" required autofocus autocomplete="telefono" />
+                <x-jet-label for="rol" value="{{ __('Nivel de Rol') }}" />
+                <x-jet-input id="rol" class="block mt-1 w-full" type="text" name="rol" value="{{ $usuario->rol_usuario }}" required />
             </div>
 
             <div class="mt-4">
-                <x-jet-label for="roles" value="{{ __('Rol') }}" />
+                <x-jet-label for="roles" value="{{ __('Nuevo Rol') }}" />
                 <select name="roles" id="roles">
                     @foreach ($roles as $item => $value)
-                        <option value="{{ $value->id }}">{{$value->ID}} - {{$value->ROL}}</option>   
+                        <option value="{{ $value->id }}">{{$value->ID}} - {{$value->ROL}}></option>
                     @endforeach
                 </select>
             </div>
@@ -90,10 +62,12 @@
                 <x-jet-label for="areas" value="{{ __('Area') }}" />
                 <select name="areas" id="areas">
                     @foreach ($areas as $item => $value)
-                        <option value="{{ $value->ID }}">{{$value->ID}} - {{$value->NOMBRE}}</option>   
+                        <option value="{{ $value->ID }}">{{$value->ID}} - {{$value->NOMBRE}}></option>
                     @endforeach
                 </select>
             </div>
+
+
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                 <div class="mt-4">

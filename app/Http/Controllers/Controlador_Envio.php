@@ -344,17 +344,17 @@ class Controlador_Envio extends Controller
     {
         $envio = Envio::find($id);
 
-    if (!$envio) {
-        abort(404, 'Envio no encontrado');
-    }
+        if (!$envio) {
+            abort(404, 'Envio no encontrado');
+        }
 
-    $ruta = storage_path('app/public/' . $envio->env_documento);
+        $ruta = storage_path('app/public/' . $envio->env_documento);
 
-    if (!file_exists($ruta)) {
-        abort(404, 'Archivo no encontrado');
-    }
+        if (!file_exists($ruta)) {
+            abort(404, 'Archivo no encontrado');
+        }
 
-    return response()->download($ruta);
+        return response()->download($ruta);
 
     }
 }

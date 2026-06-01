@@ -90,14 +90,14 @@ class User extends Authenticatable
             'name' => $name,
             'email' => $email,
             'password' => Hash::make($password),
-            'estado' => $estado, 
+            'estado' => $estado,
             'rol' => $rol,
             'rol_usuario' => $roles,
             'area_usuario' => $area
         ]);
     }
 
-    public static function modificar_usuario($id,$name,$email,$password,$estado,$rol){
+    public static function modificar_usuario($id,$name,$email,$estado,$rol){
         // Creamos un arreglo con los campos que siempre serán actualizados
         $data = [
             'name' => $name,
