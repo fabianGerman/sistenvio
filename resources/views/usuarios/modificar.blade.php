@@ -51,9 +51,13 @@
 
             <div class="mt-4">
                 <x-jet-label for="roles" value="{{ __('Nuevo Rol') }}" />
-                <select name="roles" id="roles">
-                    @foreach ($roles as $item => $value)
-                        <option value="{{ $value->id }}">{{$value->ID}} - {{$value->ROL}}></option>
+               <select name="roles" id="roles">
+                    @foreach($roles as $value)
+                        <option
+                            value="{{ $value->ID }}"
+                            {{ $usuario->rol_usuario == $value->ID ? 'selected' : '' }}>
+                            {{ $value->ID }} - {{ $value->ROL }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -61,8 +65,12 @@
             <div class="mt-4">
                 <x-jet-label for="areas" value="{{ __('Area') }}" />
                 <select name="areas" id="areas">
-                    @foreach ($areas as $item => $value)
-                        <option value="{{ $value->ID }}">{{$value->ID}} - {{$value->NOMBRE}}></option>
+                    @foreach($areas as $value)
+                        <option
+                            value="{{ $value->ID }}"
+                            {{ $usuario->area_usuario == $value->ID ? 'selected' : '' }}>
+                            {{ $value->ID }} - {{ $value->NOMBRE }}
+                        </option>
                     @endforeach
                 </select>
             </div>

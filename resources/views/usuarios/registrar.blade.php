@@ -62,6 +62,7 @@
                     value="{{ Auth::user()->area_usuario }}">
 
             @endif
+
             <div class="mt-4">
                 <x-jet-label for="areas" value="{{ __('Area') }}" />
                 <select name="areas" id="areas">

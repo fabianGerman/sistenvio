@@ -72,15 +72,51 @@ class Controlador_Usuario extends Controller
     }
 
     public function update($id){
-        $usuario = User::where('id',$id)
-            ->first();
-        $persona = Persona::where('per_usuario',$usuario->id)
-            ->first();
-        $roles = Rol::enumerar_roles();
+        $usuario = User::findOrFail($id);
 
-        $areas = Area::enumerar_areas();
+        $persona = Persona::where(
+            'per_usuario',
+            $usuario->id
+        )->first();
 
-        return view('usuarios.modificar',compact('usuario','persona','roles','areas'));
+        $usuarioLogueado = Auth::user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRAR ROLES
+        |--------------------------------------------------------------------------
+        */
+
+        if ($usuarioLogueado->rol_usuario == 1) { // ADMINISTRADOR
+
+            $roles = Rol::enumerar_roles();
+            $areas = Area::enumerar_areas();
+
+        } elseif ($usuarioLogueado->rol_usuario == 2) { // SUPERVISOR
+
+            // SOLO EMPLEADO
+            $roles = Rol::where('ID', 3)->get();
+
+            // SOLO SU AREA
+            $areas = Area::where(
+                'ID',
+                $usuarioLogueado->area_usuario
+            )->get();
+
+        } else {
+
+            abort(403,'No tiene permisos');
+        }
+
+        return view(
+            'usuarios.modificar',
+            compact(
+                'usuario',
+                'persona',
+                'roles',
+                'areas'
+            )
+        );
     }
 
     public function delete($id){
@@ -194,23 +230,77 @@ class Controlador_Usuario extends Controller
     }
 
     public function edit(Request $request){
+        $usuarioLogueado = Auth::user();
+
         $id = $request->input('id');
         $name = $request->input('name');
         $email = $request->input('email');
-        //$password = $request->input('password');
         $estado = $request->input('estado');
-        $rol = $request->input('rol');
 
-        User::modificar_usuario($id,$name,$email,$estado,$rol);
+        $rolSeleccionado = intval(
+            $request->input('roles')
+        );
+
+        $areaSeleccionada = intval(
+            $request->input('areas')
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDACION DE PERMISOS
+        |--------------------------------------------------------------------------
+        */
+
+        if ($usuarioLogueado->rol_usuario == 2) {
+
+            // Supervisor solo puede asignar empleado
+            if ($rolSeleccionado != 3) {
+
+                return back()->withErrors([
+                    'roles' => 'Solo puede asignar rol Empleado.'
+                ]);
+            }
+
+            // Supervisor solo puede asignar su area
+            if (
+                $areaSeleccionada !=
+                $usuarioLogueado->area_usuario
+            ) {
+
+                return back()->withErrors([
+                    'areas' => 'Solo puede asignar usuarios a su área.'
+                ]);
+            }
+        }
+
+        User::where('id',$id)->update([
+            'name' => $name,
+            'email' => $email,
+            'estado' => $estado,
+            'rol_usuario' => $rolSeleccionado,
+            'area_usuario' => $areaSeleccionada
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATOS PERSONALES
+        |--------------------------------------------------------------------------
+        */
 
         $documento = $request->input('documento');
         $nombre = $request->input('nombre');
         $instituto = $request->input('instituto');
         $direccion = $request->input('direccion');
         $telefono = $request->input('telefono');
-        $usuario = User::buscar_usuario_detalle($name);
 
-        Persona::modificar_persona($documento,$nombre,$instituto,$direccion,$telefono,$usuario->ID);
+        Persona::modificar_persona(
+            $documento,
+            $nombre,
+            $instituto,
+            $direccion,
+            $telefono,
+            $id
+        );
 
         return redirect()->route('usuario.listar');
     }
