@@ -30,6 +30,17 @@
                         </div>
 
                         <div class="mt-4">
+                            <x-jet-label for="obrassociales" value="OBRA SOCIAL" />
+                            <select name="obrassociales" id="obrassociales">
+                                @foreach ($obrassociales as $value)
+                                    <option value="{{ $value->ID }}">
+                                        {{ $value->ID }} - {{ $value->SIGLAS }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mt-4">
                             <x-jet-label for="periodo" value="{{ __('PERIODO') }}" />
                             <x-jet-input id="periodo" class="block mt-1 w-full" type="text" name="periodo" :value="old('periodo')" required autofocus autocomplete="address"/>
                         </div>

@@ -16,7 +16,10 @@ class Controlador_Envio extends Controller
 
     public function index()
     {
-        return view('envios.envio');
+        $obrassociales = ObraSocial::enumerar_obrassociales();
+        return view('envios.envio', [
+            'obrassociales' => $obrassociales
+        ]);
     }
 
     public function listar()
@@ -49,6 +52,8 @@ class Controlador_Envio extends Controller
             'prestacion' => 'required',
             'documentacion' => 'required|file|mimes:pdf,zip,rar|max:20480'
         ]);
+
+
 
         $obrasocial = $request->input('obrasocial');
         $periodo = $request->input('periodo');

@@ -60,4 +60,13 @@ class ObraSocial extends Model
             )
             ->paginate(5);
     }
+
+    public static function enumerar_obrassociales(){
+        $result = ObraSocial::select(
+            'id as ID',
+            'os_siglas as SIGLAS'
+        )
+        ->get();
+        return $result;
+    }
 }
