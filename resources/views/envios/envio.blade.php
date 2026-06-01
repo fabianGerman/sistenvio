@@ -25,11 +25,6 @@
                         </div>
 
                         <div class="mt-4">
-                            <x-jet-label for="obrasocial" value="{{ __('OBRA SOCIAL') }}" />
-                            <x-jet-input id="obrasocial" class="block mt-1 w-full" type="text" name="obrasocial" :value="old('obrasocial')" required autofocus autocomplete="cuit"/>
-                        </div>
-
-                        <div class="mt-4">
                             <x-jet-label for="obrassociales" value="OBRA SOCIAL" />
                             <select name="obrassociales" id="obrassociales">
                                 @foreach ($obrassociales as $value)
@@ -46,7 +41,7 @@
                         </div>
 
                         <div class="mt-4">
-                            <x-jet-label for="prestador" value="{{ __('PRESTADOR') }}" />
+                            <x-jet-label for="prestador" value="{{ __('MATRICULA DE PRESTADOR') }}" />
                             <x-jet-input id="prestador" class="block mt-1 w-full" type="text" name="prestador" :value="old('prestador')" required autofocus autocomplete="phone"/>
                         </div>
 
