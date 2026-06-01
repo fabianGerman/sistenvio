@@ -56,8 +56,8 @@
                         </div>
 
                         <div class="mt-4">
-                            <x-jet-label for="afiliado" value="{{ __('AFILIADO') }}" />
-                            <x-jet-input id="afiliado" class="block mt-1 w-full" type="text" name="afiliado" :value="old('afiliado')" required autofocus autocomplete="phone"/>
+                            <x-jet-label for="afiliado" value="{{ __('NUMERO AFILIADO') }}" />
+                            <x-jet-input id="afiliado" class="block mt-1 w-full" type="text" name="afiliado" :value="old('afiliado')" required autofocus autocomplete="phone" placeholder="xxxxxxxxxxx/xx"/>
                         </div>
                         <div class="flex items-center justify-end mt-4">
                             <x-jet-button class="ml-4">

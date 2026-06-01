@@ -45,7 +45,7 @@ class Controlador_Envio extends Controller
     {
 
         $request->validate([
-            'obrasocial' => 'required',
+
             'periodo' => 'required',
             'prestador' => 'required',
             'afiliado' => 'required',
@@ -54,7 +54,7 @@ class Controlador_Envio extends Controller
         ]);
 
 
-
+        $obrassociales = intval($request->input('obrassociales'));
         $obrasocial = $request->input('obrasocial');
         $periodo = $request->input('periodo');
         $prestador = $request->input('prestador');
@@ -91,9 +91,9 @@ class Controlador_Envio extends Controller
         if ($buscar_afiliado == null) {
 
             $afiliado_agregar = new Afiliado();
-            $afiliado_agregar->af_numero = "NO COMPLETADO";
+            $afiliado_agregar->af_numero = $afiliado;
             $afiliado_agregar->af_cuil = "NO COMPLETADO";
-            $afiliado_agregar->af_nombres = $afiliado;
+            $afiliado_agregar->af_nombres = "NO COMPLETADO";
             $afiliado_agregar->save();
 
             $buscar_afiliado = $afiliado_agregar;
@@ -127,13 +127,13 @@ class Controlador_Envio extends Controller
 
         $buscar_obrasocial = ObraSocial::where(
             'os_nombre',
-            $obrasocial
+            $obrassociales == 0 ? $obrasocial : ObraSocial::where('id', $obrassociales)->first()->SIGLAS
         )->first();
 
         if ($buscar_obrasocial == null) {
 
             $obrasocial_agregar = new ObraSocial();
-            $obrasocial_agregar->os_nombre = $obrasocial;
+            $obrasocial_agregar->os_nombre = $obrassociales == 0 ? $obrasocial : ObraSocial::where('id', $obrassociales)->first()->SIGLAS;
             $obrasocial_agregar->save();
 
             $buscar_obrasocial = $obrasocial_agregar;
