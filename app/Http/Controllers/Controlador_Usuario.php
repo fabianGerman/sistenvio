@@ -74,26 +74,92 @@ class Controlador_Usuario extends Controller
 
     public function insert(Request $request){
 
+        $usuarioLogueado = Auth::user();
+
+        $rolSeleccionado = intval($request->input('roles'));
+        $areaSeleccionada = intval($request->input('areas'));
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR ROLES
+        |--------------------------------------------------------------------------
+        */
+
+        // Administrador
+        if ($usuarioLogueado->rol_usuario == 1) {
+
+            // puede crear cualquier rol
+        }
+
+        // Supervisor
+        elseif ($usuarioLogueado->rol_usuario == 2) {
+
+            // solamente empleados
+            if ($rolSeleccionado != 3) {
+
+                return back()->with(
+                    'error',
+                    'Solo puede registrar usuarios tipo Empleado.'
+                );
+            }
+
+            // solamente su propia área
+            if ($areaSeleccionada != $usuarioLogueado->area_usuario) {
+
+                return back()->with(
+                    'error',
+                    'Solo puede registrar usuarios en su área.'
+                );
+            }
+        }
+
+        // Empleado
+        else {
+
+            return back()->with(
+                'error',
+                'No tiene permisos para registrar usuarios.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGISTRAR USUARIO
+        |--------------------------------------------------------------------------
+        */
+
         $name = $request->input('name');
         $email = $request->input('email');
         $password = $request->input('password');
         $estado = $request->input('estado');
         $rol = null;
 
-        $roles = intval($request->input('roles'));
-        $areas = intval($request->input('areas'));
-
-        //dd($name,$email,$password,$estado,$rol,$roles,$areas);
-        User::registrar_usuario($name,$email,$password,$estado,$rol,$roles,$areas);
+        User::registrar_usuario(
+            $name,
+            $email,
+            $password,
+            $estado,
+            $rol,
+            $rolSeleccionado,
+            $areaSeleccionada
+        );
 
         $documento = $request->input('documento');
         $nombre = $request->input('nombre');
         $instituto = $request->input('instituto');
         $direccion = $request->input('direccion');
         $telefono = $request->input('telefono');
+
         $usuario = User::buscar_usuario_detalle($name);
 
-        Persona::registrar_persona($documento,$nombre,$instituto,$direccion,$telefono,$usuario->ID);
+        Persona::registrar_persona(
+            $documento,
+            $nombre,
+            $instituto,
+            $direccion,
+            $telefono,
+            $usuario->ID
+        );
 
         return redirect()->route('usuario.listar');
     }
