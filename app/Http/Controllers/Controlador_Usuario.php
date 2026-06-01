@@ -37,9 +37,38 @@ class Controlador_Usuario extends Controller
     }
 
     public function register(){
-        $roles = Rol::enumerar_roles();
-        $areas = Area::enumerar_areas();
-        return view('usuarios.registrar',compact('roles','areas'));
+         $usuario = Auth::user();
+
+        // Administrador
+        if ($usuario->rol_usuario == 1) {
+
+            $roles = Rol::enumerar_roles();
+            $areas = Area::enumerar_areas();
+
+        }
+        // Supervisor
+        elseif ($usuario->rol_usuario == 2) {
+
+            // Solo Empleado
+            $roles = Rol::where('ID', 3)->get();
+
+            // Solo su área
+            $areas = Area::where(
+                'ID',
+                $usuario->area_usuario
+            )->get();
+
+        }
+        // Empleado
+        else {
+
+            abort(403, 'No tiene permisos para registrar usuarios.');
+        }
+
+        return view(
+            'usuarios.registrar',
+            compact('roles', 'areas')
+        );
     }
 
     public function update($id){
