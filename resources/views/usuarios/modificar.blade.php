@@ -46,7 +46,7 @@
 
             <div class="mt-4">
                 <x-jet-label for="rol" value="{{ __('Nivel de Rol') }}" />
-                <x-jet-input id="rol" class="block mt-1 w-full" type="text" name="rol" value="{{ $usuario->rol_usuario }}" required />
+                <x-jet-input id="rol" class="block mt-1 w-full" type="text" name="rol" value="{{ $usuario->rol_usuario }}" required disabled/>
             </div>
 
             <div class="mt-4">
