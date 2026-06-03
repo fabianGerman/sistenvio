@@ -31,7 +31,7 @@ class Envio extends Model
                 ->select(
                     'envios.created_at as FECHACREACION',
                     'envios.id',
-                    'afiliados.af_nombres as AFILIADO',
+                    'afiliados.af_numero as AFILIADO',
                     'prestadors.prest_nombre as PRESTADOR',
                     'obra_socials.os_nombre as OBRASOCIAL',
                     'envios.env_periodo as PERIODO',

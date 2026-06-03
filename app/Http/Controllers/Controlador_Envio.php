@@ -84,7 +84,7 @@ class Controlador_Envio extends Controller
         */
 
         $buscar_afiliado = Afiliado::where(
-            'af_nombres',
+            'af_numero',
             $afiliado
         )->first();
 
