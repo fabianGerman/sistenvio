@@ -49,7 +49,8 @@ class ObraSocial extends Model
     }
 
     public static function buscar_obrasocial($param){
-        return ObraSocial::where('os_nombre',$param)
+        return ObraSocial::where('id',$param)
+            ->orwhere('os_nombre',$param)
             ->orWhere('os_siglas',$param)
             ->orWhere('os_numero',$param)
             ->select(

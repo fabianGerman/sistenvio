@@ -125,10 +125,7 @@ class Controlador_Envio extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $buscar_obrasocial = ObraSocial::where(
-            'os_nombre',
-            $obrassociales == 0 ? $obrasocial : ObraSocial::where('id', $obrassociales)->first()->SIGLAS
-        )->first();
+        $buscar_obrasocial = ObraSocial::buscar_obrasocial($obrassociales)->first();
 
         if ($buscar_obrasocial == null) {
 
@@ -148,7 +145,7 @@ class Controlador_Envio extends Controller
         $envio_agregar = new Envio();
 
         $envio_agregar->env_afiliado = $buscar_afiliado->id;
-        $envio_agregar->env_obrasocial = $buscar_obrasocial->id;
+        $envio_agregar->env_obrasocial = $buscar_obrasocial->ID;
         $envio_agregar->env_prestador = $buscar_prestador->id;
         $envio_agregar->env_periodo = $periodo;
         $envio_agregar->env_prestacion = $prestacion;
@@ -341,7 +338,7 @@ class Controlador_Envio extends Controller
     */
 
     return redirect()
-        ->route('envio.index')
+        ->route('envio.lista')
         ->with('comprobante_url', $pdfUrl);
     }
 
