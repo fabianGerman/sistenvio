@@ -45,7 +45,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="{{ route('envio.comprobante',['id'=>$envio->id]) }}" target="_blank">Ver comprobante</a>
+                                        <a href="{{ route('envio.comprobante',['id'=>$envio->id]) }}" target="_blank">ver comprobante</a>
                                     </td>
                                 </tr>
                             @endforeach

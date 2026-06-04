@@ -36,7 +36,8 @@ class Envio extends Model
                     'obra_socials.os_nombre as OBRASOCIAL',
                     'envios.env_periodo as PERIODO',
                     'envios.env_prestacion as PRESTACION',
-                    'envios.env_documento as DOCUMENTACION'
+                    'envios.env_documento as DOCUMENTACION',
+                    'envios.env_comprobante as COMPROBANTE'
                 )
                 ->paginate(5);
         }else{
@@ -54,7 +55,8 @@ class Envio extends Model
                         'obra_socials.os_nombre as OBRASOCIAL',
                         'envios.env_periodo as PERIODO',
                         'envios.env_prestacion as PRESTACION',
-                        'envios.env_documento as DOCUMENTACION'
+                        'envios.env_documento as DOCUMENTACION',
+                        'envios.env_comprobante as COMPROBANTE'
                     )
                     ->paginate(5);
             }else{
@@ -71,7 +73,8 @@ class Envio extends Model
                         'obra_socials.os_nombre as OBRASOCIAL',
                         'envios.env_periodo as PERIODO',
                         'envios.env_prestacion as PRESTACION',
-                        'envios.env_documento as DOCUMENTACION'
+                        'envios.env_documento as DOCUMENTACION',
+                        'envios.env_comprobante as COMPROBANTE'
                     )
                     ->paginate(5);
             }

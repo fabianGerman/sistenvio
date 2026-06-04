@@ -216,7 +216,8 @@ class Controlador_Envio extends Controller
                     'obra_socials.os_nombre as OBRASOCIAL',
                     'envios.env_periodo as PERIODO',
                     'envios.env_prestacion as PRESTACION',
-                    'envios.env_documento as DOCUMENTACION'
+                    'envios.env_documento as DOCUMENTACION',
+                    'envios.env_comprobante as COMPROBANTE'
                 )
                 ->paginate(5)
                 ->appends([
@@ -281,7 +282,8 @@ class Controlador_Envio extends Controller
                 'obra_socials.os_nombre as OBRASOCIAL',
                 'envios.env_periodo as PERIODO',
                 'envios.env_prestacion as PRESTACION',
-                'envios.env_documento as DOCUMENTACION'
+                'envios.env_documento as DOCUMENTACION',
+                'envios.env_comprobante as COMPROBANTE'
             )
             ->first();
 
@@ -313,6 +315,7 @@ class Controlador_Envio extends Controller
             storage_path('app/public/pdfs/' . $pdfFileName)
         );
 
+
         /*
         |--------------------------------------------------------------------------
         | URL PDF
@@ -320,6 +323,7 @@ class Controlador_Envio extends Controller
         */
 
         $pdfUrl = asset('storage/pdfs/' . $pdfFileName);
+
 
         /*
         |--------------------------------------------------------------------------
@@ -337,9 +341,11 @@ class Controlador_Envio extends Controller
     |--------------------------------------------------------------------------
     */
 
-    return redirect()
-        ->route('envio.lista')
-        ->with('comprobante_url', $pdfUrl);
+    return $pdf->stream($pdfFileName);
+
+    //return redirect()
+    //    ->route('envio.lista')
+    //    ->with('comprobante_url', $pdfUrl);
     }
 
     public function descargarDocumento(int $id)
