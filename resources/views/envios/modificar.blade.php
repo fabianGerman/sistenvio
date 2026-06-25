@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <a href="{{route('usuario.registrar')}}">
+        <a href="{{route('envio.index')}}">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('AGREGAR') }}
             </h2>
