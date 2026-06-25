@@ -365,4 +365,47 @@ class Controlador_Envio extends Controller
         return response()->download($ruta);
 
     }
+
+
+    //-------------------------------------------------
+    public function update($id)
+    {
+        $envio = Envio::where('id', $id)
+            ->first();
+
+        return view('envios.modificar', compact('envio'));
+    }
+
+    public function delete($id)
+    {
+        $envio = Envio::where('id', $id)
+            ->first();
+
+        return view('envios.eliminar', compact('envio'));
+    }
+
+    public function edit(Request $request)
+    {
+        $id = $request->input('id');
+        $periodo = $request->input('periodo');
+        $prestador = $request->input('prestador');
+        $afiliado = $request->input('afiliado');
+        $prestacion = $request->input('prestacion');
+        $obrasocial = $request->input('obrasocial');
+        $usuario = $request->input('usuario');
+
+        Envio::modificar_envio($id, $periodo, $prestador, $afiliado, $prestacion, $obrasocial, $usuario);
+
+        return redirect()->route('envio.listar');
+    }
+
+    public function drop(Request $request)
+    {
+        $id = $request->input('id');
+
+        Envio::eliminar_envio($id);
+
+        return redirect()->route('envio.listar');
+    }
+
 }

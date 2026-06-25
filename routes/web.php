@@ -54,7 +54,11 @@ Route::middleware('auth')->group(function(){
     Route::post('/envio/registrar',[Controlador_Envio::class,'registrar'])->name('envio.registrar');
     Route::get('/envio/index',[Controlador_Envio::class,'index'])->name('envio.index');
     Route::get('/envio/lista',[Controlador_Envio::class,'listar'])->name('envio.lista');
+    Route::get('/envio/modificar/{id}',[Controlador_Envio::class,'update'])->name('envio.modificar');
+    Route::get('/envio/eliminar/{id}',[Controlador_Envio::class,'delete'])->name('envio.eliminar');
 
+    Route::post('/envio/actualizar',[Controlador_Envio::class,'actualizar'])->name('envio.actualizar');
+    Route::post('/envio/borrar',[Controlador_Envio::class,'borrar'])->name('envio.borrar');
     Route::get('/envio/comprobante',[Controlador_Envio::class,'comprobante'])->name('envio.comprobante');
     Route::match(['get','post'],'/envio/buscar',[Controlador_Envio::class,'buscar'])->name('envio.buscar');
     Route::get('/envio/descargar/{id}', [Controlador_Envio::class, 'descargarDocumento'])->name('envio.descargar');

@@ -27,6 +27,8 @@
                                 <th class="px-4 py-2">FECHA DE CARGA</th>
                                 <th class="px-4 py-2">DOCUMENTACION</th>
                                 <th class="px-4 py-2">COMPROBANTE</th>
+                                <th class="px-4 py-2">MODIFICAR</th>
+                                <th class="px-4 py-2">ELIMINAR</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,6 +48,20 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('envio.comprobante',['id'=>$envio->id]) }}" target="_blank">ver comprobante</a>
+                                    </td>
+                                    <td class="border px-4 py-2">
+                                        <x-jet-button class="ml-2">
+                                            <a href="{{route('envio.modificar',$envio->id)}}">
+                                                {{ __('Modificar') }}
+                                            </a>
+                                        </x-jet-button>
+                                    </td>
+                                    <td>
+                                        <x-jet-button class="ml-2">
+                                            <a href="{{route('envio.eliminar',$envio->id)}}">
+                                                {{ __('Eliminar') }}
+                                            </a>
+                                        </x-jet-button>
                                     </td>
                                 </tr>
                             @endforeach

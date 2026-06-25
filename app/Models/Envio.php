@@ -86,11 +86,20 @@ class Envio extends Model
 
     }
 
-    public static function modificar_envio(){
-
+    public static function modificar_envio($id, $periodo, $prestador, $afiliado, $prestacion, $obrasocial, $usuario){
+        return Envio::where('id',$id)
+            ->update([
+                'env_prestador' => $prestador,
+                'env_obrasocial' => $obrasocial,
+                'env_afiliado' => $afiliado,
+                'env_usuario' => $usuario,
+                'env_periodo' => $periodo,
+                'env_prestacion' => $prestacion
+            ]);
     }
 
-    public static function eliminar_envio(){
-
+    public static function eliminar_envio($id){
+        return Envio::where('id',$id)
+            ->delete();
     }
 }
