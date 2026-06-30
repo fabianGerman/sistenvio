@@ -8,9 +8,10 @@
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg ">
                 <x-jet-authentication-card>
                     <x-slot name="logo">
+                        <br><br/>
+                        <br><br/>
                         <x-jet-authentication-card-logo />
-                        <br><br>
-                        <h1><strong>SALUD JUJUY</strong></h1>
+
                     </x-slot>
 
                     <x-jet-validation-errors class="mb-4" />

@@ -1,12 +1,9 @@
 <x-app-layout>
 
-
     <div class="pt-4 pb-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg ">
-
                 <h1 class="text-center"><strong>LISTA DE ENVIOS</strong> </h1>
-
                 <br><br>
                 <form method="POST" class="flex items-center justify-end my-3" role="search" action="{{ route('envio.buscar') }}">
                     @csrf
