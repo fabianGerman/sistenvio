@@ -22,6 +22,12 @@
         <form method="POST" action="{{ route('envio.actualizar',$envio) }}">
             @csrf
 
+
+            <div>
+                <x-jet-label for="usuario" value="{{ __('Usuario Actual') }}" />
+                <x-jet-input id="usuario" class="block mt-1 w-full" type="text" name="usuario" value="{{ $usuario->name }}" required autofocus autocomplete="name" />
+            </div>
+
             <div>
                 <x-jet-label for="id" value="{{ __('ID Envio') }}" />
                 <x-jet-input id="id" class="block mt-1 w-full" type="text" name="id" value="{{ $envio->id }}" required autofocus autocomplete="name" />
@@ -34,13 +40,13 @@
             </div>
 
             <div>
-                <x-jet-label for="prestador" value="{{ __('Prestador') }}" />
-                <x-jet-input id="prestador" class="block mt-1 w-full" type="text" name="prestador" value="{{ $envio->env_prestador }}" required autofocus autocomplete="name" />
+                <x-jet-label for="prestador" value="{{ __('Prestador Actual') }}" />
+                <x-jet-input id="prestador" class="block mt-1 w-full" type="text" name="prestador" value="{{ $prestador->NOMBRE }}" required autofocus autocomplete="name" />
             </div>
 
             <div>
-                <x-jet-label for="afiliado" value="{{ __('Afiliado') }}" />
-                <x-jet-input id="afiliado" class="block mt-1 w-full" type="text" name="afiliado" value="{{ $envio->env_afiliado }}" required autofocus autocomplete="name" />
+                <x-jet-label for="afiliado" value="{{ __('Afiliado Actual') }}" />
+                <x-jet-input id="afiliado" class="block mt-1 w-full" type="text" name="afiliado" value="{{ $afiliado->NUMERO }}" required autofocus autocomplete="name" />
             </div>
 
             <div>
@@ -49,8 +55,8 @@
             </div>
 
             <div>
-                <x-jet-label for="obrasocial" value="{{ __('Obra Social') }}" />
-                <x-jet-input id="obrasocial" class="block mt-1 w-full" type="text" name="obrasocial" value="{{ $envio->env_obrasocial }}" required autofocus autocomplete="name" />
+                <x-jet-label for="obrasocial" value="{{ __('Obra Social Actual') }}" />
+                <x-jet-input id="obrasocial" class="block mt-1 w-full" type="text" name="obrasocial" value="{{ $obrassociales->SIGLAS }}" required autofocus autocomplete="name" />
             </div>
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())

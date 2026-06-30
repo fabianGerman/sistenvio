@@ -62,6 +62,14 @@ class Prestador extends Model
                     'prest_telefono as TELEFONO',
                     'prest_email as CORREO'
                 )
-            ->paginate(5);    
+            ->paginate(5);
+    }
+
+    public static function enumerar_prestadores(){
+        return Prestador::select(
+                'id as ID',
+                'prest_nombre as NOMBRE'
+            )
+            ->get();
     }
 }

@@ -373,7 +373,23 @@ class Controlador_Envio extends Controller
         $envio = Envio::where('id', $id)
             ->first();
 
-        return view('envios.modificar', compact('envio'));
+        $afiliado = Afiliado::where('id', $envio->env_afiliado)
+            ->select(
+                'af_numero as NUMERO',
+            )
+            ->first();
+        $prestador = Prestador::where('id', $envio->env_prestador)
+            ->select(
+                'prest_nombre as NOMBRE'
+            )
+            ->first();
+        $obrassociales = ObraSocial::where('id', $envio->env_obrasocial)
+            ->select(
+                'os_siglas as SIGLAS'
+            )
+            ->first();
+        $usuario = Auth::user();
+            return view('envios.modificar', compact('envio', 'afiliado', 'prestador', 'obrassociales', 'usuario'));
     }
 
     public function delete($id)
@@ -386,17 +402,59 @@ class Controlador_Envio extends Controller
 
     public function edit(Request $request)
     {
-        $id = $request->input('id');
+         $id = $request->input('id');
         $periodo = $request->input('periodo');
-        $prestador = $request->input('prestador');
-        $afiliado = $request->input('afiliado');
         $prestacion = $request->input('prestacion');
-        $obrasocial = $request->input('obrasocial');
         $usuario = $request->input('usuario');
 
-        Envio::modificar_envio($id, $periodo, $prestador, $afiliado, $prestacion, $obrasocial, $usuario);
+        // Buscar afiliado por número
+        $afiliado = Afiliado::where('af_numero', $request->input('afiliado'))->first();
 
-        return redirect()->route('envio.listar');
+        if (!$afiliado) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'afiliado' => 'El afiliado ingresado no existe.'
+                ]);
+        }
+
+        // Buscar prestador por nombre
+        $prestador = Prestador::where('prest_nombre', $request->input('prestador'))->first();
+
+        if (!$prestador) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'prestador' => 'El prestador ingresado no existe.'
+                ]);
+        }
+
+        // Buscar obra social por sigla
+        $obraSocial = ObraSocial::where('os_siglas', $request->input('obrasocial'))->first();
+
+        if (!$obraSocial) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'obrasocial' => 'La obra social ingresada no existe.'
+                ]);
+        }
+        // Buscar usuario por nombre
+        $usuario = Auth::user();
+
+        //dd($usuario);
+        Envio::modificar_envio(
+            $id,
+            $periodo,
+            $prestador->id,
+            $afiliado->id,
+            $prestacion,
+            $obraSocial->id,
+            $usuario->id
+        );
+
+        return redirect()->route('envio.lista')
+        ->with('success', 'Envío actualizado correctamente.');
     }
 
     public function drop(Request $request)

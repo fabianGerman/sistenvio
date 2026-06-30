@@ -23,7 +23,7 @@ class Afiliado extends Model
                 'afiliados.af_cuil as CUIL',
                 'afiliados.af_nombres as NOMBRE'
             );
-            
+
         // Si el rol del usuario autenticado NO es 1, aplica la condición del where
         if (Auth::user()->rol_usuario != 1) {
             $query->where('afiliados.af_usuario', Auth::id());
@@ -31,8 +31,8 @@ class Afiliado extends Model
         $result = $query->paginate(5);
 
         return $result;
-    }   
-    
+    }
+
     public static function agregar_afiliado(string $numero, string $cuil, string $nombre): bool{
         return Afiliado::insert([
             'af_numero' => $numero,
@@ -67,5 +67,13 @@ class Afiliado extends Model
                 'af_nombres as NOMBRE'
             )
             ->paginate(5);
+    }
+
+    public static function enumerar_afiliados(){
+        return Afiliado::select(
+                'id as ID',
+                'af_nombres as NOMBRE'
+            )
+            ->get();
     }
 }
