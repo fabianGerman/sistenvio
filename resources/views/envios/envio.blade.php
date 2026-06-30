@@ -19,7 +19,7 @@
                     <form method="POST" action="{{ route('envio.registrar')}}" enctype="multipart/form-data">
                         @csrf
 
-                        <div>
+                        <div class="mt-4">
                             <x-jet-label for="documentacion" value="{{ __('DOCUMENTACION') }}" />
                             <x-jet-input id="documentacion" class="block mt-1 w-full" type="file" name="documentacion" accept=".pdf,.zip,.rar" required autofocus />
                         </div>
@@ -37,7 +37,7 @@
 
                         <div class="mt-4">
                             <x-jet-label for="periodo" value="{{ __('PERIODO') }}" />
-                            <x-jet-input id="periodo" class="block mt-1 w-full" type="text" name="periodo" :value="old('periodo')" required autofocus autocomplete="address"/>
+                            <x-jet-input id="periodo" class="block mt-1 w-full" type="text" name="periodo" :value="old('periodo')" required autofocus autocomplete="address" placeholder="mm/yyyy"/>
                         </div>
 
                         <div class="mt-4">
