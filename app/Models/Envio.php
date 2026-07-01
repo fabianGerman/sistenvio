@@ -33,7 +33,7 @@ class Envio extends Model
                     'envios.id',
                     'afiliados.af_numero as AFILIADO',
                     'prestadors.prest_nombre as PRESTADOR',
-                    'obra_socials.os_nombre as OBRASOCIAL',
+                    'obra_socials.os_siglas as OBRASOCIAL',
                     'envios.env_periodo as PERIODO',
                     'envios.env_prestacion as PRESTACION',
                     'envios.env_documento as DOCUMENTACION',
