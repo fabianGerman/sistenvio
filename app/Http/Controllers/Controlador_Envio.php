@@ -478,4 +478,13 @@ class Controlador_Envio extends Controller
         return redirect()->route('envio.listar');
     }
 
+    public function back(){
+        $lista = Envio::listar_envios();
+        $obrassociales = ObraSocial::enumerar_obrassociales();
+
+        return redirect()->route('envio.listar')->with([
+            'envios' => $lista,
+            'obrassociales' => $obrassociales
+        ]);
+    }
 }
