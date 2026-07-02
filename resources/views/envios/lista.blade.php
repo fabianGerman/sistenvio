@@ -18,24 +18,24 @@
             <!-- Formulario -->
             <div class="p-6">
 
-                <form method="POST" action="{{ route('envio.buscar') }}">
-                    @csrf
+                <form method="GET" action="{{ route('envio.buscar') }}">
+
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                         <!-- Obra Social -->
                         <div>
                             <x-jet-label
-                                for="obrassociales"
+                                for="obraSocial"
                                 value="Obra Social" />
 
                             <select
-                                name="obrassocial"
-                                id="obrassocial"
+                                name="obraSocial"
+                                id="obraSocial"
                                 class="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-
+                                <option value="">Todas</option>
                                 @foreach ($obrassociales as $value)
-                                    <option value="{{ $value->ID }}">
+                                    <option value="{{ $value->ID }}" {{ request('obraSocial') == $value->ID ? 'selected' : '' }}>
                                         {{ $value->SIGLAS }}
                                     </option>
                                 @endforeach
@@ -53,6 +53,7 @@
                                 id="search"
                                 name="search"
                                 type="text"
+                                value="{{ request('search') }}"
                                 class="block mt-2 w-full"
                                 placeholder="N° Afiliado · DNI · Matrícula Prestador · Prestación..." />
                         </div>
@@ -66,6 +67,7 @@
                                 id="periodo"
                                 name="periodo"
                                 type="text"
+                                value="{{ request('periodo') }}"
                                 class="block mt-2 w-full"
                                 placeholder="Período..." />
                         </div>
