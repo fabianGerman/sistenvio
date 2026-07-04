@@ -168,83 +168,103 @@ class Controlador_Envio extends Controller
     }
 
     public function buscar(Request $request)
-{
-    $buscar = $request->input('search');
-    $periodo = $request->input('periodo');
-    $obraSocial = $request->input('obraSocial');
+    {
+        $buscar = $request->input('search');
+        $periodo = $request->input('periodo');
+        $obraSocial = $request->input('obraSocial');
 
-    $usuario = Auth::id();
+        $usuario = Auth::user();
 
-    $query = Envio::join(
-            'afiliados',
-            'afiliados.id',
-            '=',
-            'envios.env_afiliado'
-        )
-        ->join(
-            'prestadors',
-            'prestadors.id',
-            '=',
-            'envios.env_prestador'
-        )
-        ->join(
-            'obra_socials',
-            'obra_socials.id',
-            '=',
-            'envios.env_obrasocial'
-        )
-        ->join(
-            'users',
-            'users.id',
-            '=',
-            'envios.env_usuario'
-        )
-        ->where('envios.env_usuario', $usuario);
+        $query = Envio::join(
+                'afiliados',
+                'afiliados.id',
+                '=',
+                'envios.env_afiliado'
+            )
+            ->join(
+                'prestadors',
+                'prestadors.id',
+                '=',
+                'envios.env_prestador'
+            )
+            ->join(
+                'obra_socials',
+                'obra_socials.id',
+                '=',
+                'envios.env_obrasocial'
+            )
+            ->join(
+                'users',
+                'users.id',
+                '=',
+                'envios.env_usuario'
+            );
 
-    // Buscar por texto
-    if (!empty($buscar)) {
-        $query->where(function ($q) use ($buscar) {
-            $q->where('afiliados.af_nombres', 'LIKE', "%{$buscar}%")
-              ->orWhere('prestadors.prest_nombre', 'LIKE', "%{$buscar}%")
-              ->orWhere('obra_socials.os_siglas', 'LIKE', "%{$buscar}%")
-              ->orWhere('envios.env_prestacion', 'LIKE', "%{$buscar}%");
-        });
+        if ($usuario->rol_usuario == 1) {
+
+            // No aplicar filtros.
+            // Ve todos los envíos.
+
+        }
+
+        // Supervisor
+        elseif ($usuario->rol_usuario == 2) {
+
+            $query->where('users.area_usuario', $usuario->area_usuario)
+                ->whereIn('users.rol_usuario', [2, 3]);
+
+        }
+
+        // Empleado
+        elseif ($usuario->rol_usuario == 3) {
+
+            $query->where('envios.env_usuario', $usuario->id);
+
+        }
+        // Buscar por texto
+        if (!empty($buscar)) {
+            $query->where(function ($q) use ($buscar) {
+                $q->where('afiliados.af_nombres', 'LIKE', "%{$buscar}%")
+                ->orWhere('prestadors.prest_nombre', 'LIKE', "%{$buscar}%")
+                ->orWhere('obra_socials.os_siglas', 'LIKE', "%{$buscar}%")
+                ->orWhere('envios.env_prestacion', 'LIKE', "%{$buscar}%");
+            });
+        }
+
+        // Filtrar por Obra Social
+        if (!empty($obraSocial)) {
+            $query->where('envios.env_obrasocial', $obraSocial);
+        }
+
+        // Filtrar por Período
+        if (!empty($periodo)) {
+            $query->where('envios.env_periodo', 'LIKE', "%{$periodo}%");
+        }
+
+        $envios = $query->select(
+                'envios.created_at as FECHACREACION',
+                'envios.id',
+                'afiliados.af_nombres as AFILIADO',
+                'prestadors.prest_nombre as PRESTADOR',
+                'obra_socials.os_siglas as OBRASOCIAL',
+                'envios.env_periodo as PERIODO',
+                'envios.env_prestacion as PRESTACION',
+                'envios.env_documento as DOCUMENTACION',
+                'envios.env_comprobante as COMPROBANTE'
+            )
+            ->paginate(5)
+            ->appends($request->all());
+
+        $obrassociales = ObraSocial::enumerar_obrassociales();
+
+        return view('envios.lista', [
+            'envios' => $envios,
+            'search' => $buscar,
+            'periodo' => $periodo,
+            'obraSocial' => $obraSocial,
+            'obrassociales' => $obrassociales
+        ]);
     }
-
-    // Filtrar por Obra Social
-    if (!empty($obraSocial)) {
-        $query->where('envios.env_obrasocial', $obraSocial);
-    }
-
-    // Filtrar por Período
-    if (!empty($periodo)) {
-        $query->where('envios.env_periodo', 'LIKE', "%{$periodo}%");
-    }
-
-    $envios = $query->select(
-            'envios.created_at as FECHACREACION',
-            'envios.id',
-            'afiliados.af_nombres as AFILIADO',
-            'prestadors.prest_nombre as PRESTADOR',
-            'obra_socials.os_siglas as OBRASOCIAL',
-            'envios.env_periodo as PERIODO',
-            'envios.env_prestacion as PRESTACION',
-            'envios.env_documento as DOCUMENTACION',
-            'envios.env_comprobante as COMPROBANTE'
-        )
-        ->paginate(5)
-        ->appends($request->all());
-
-    $obrassociales = ObraSocial::enumerar_obrassociales();
-
-    return view('envios.lista', [
-        'envios' => $envios,
-        'search' => $buscar,
-        'periodo' => $periodo,
-        'obraSocial' => $obraSocial,
-        'obrassociales' => $obrassociales
-    ]);
-}
 
     public function generarPDF($id)
     {
