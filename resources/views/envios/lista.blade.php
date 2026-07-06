@@ -58,6 +58,7 @@
                                 placeholder="N° Afiliado · DNI · Matrícula Prestador · Prestación..." />
                         </div>
 
+                        <!-- Período -->
                         <div class="md:col-span-3">
                             <x-jet-label
                                 for="periodo"
@@ -69,7 +70,7 @@
                                 type="text"
                                 value="{{ request('periodo') }}"
                                 class="block mt-2 w-full"
-                                placeholder="Período..." />
+                                placeholder="MM/YYYY" />
                         </div>
 
                     </div>
