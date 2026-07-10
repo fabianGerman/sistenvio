@@ -495,14 +495,14 @@ class Controlador_Envio extends Controller
 
         Envio::eliminar_envio($id);
 
-        return redirect()->route('envio.listar');
+        return redirect()->route('envio.lista');
     }
 
     public function back(){
         $lista = Envio::listar_envios();
         $obrassociales = ObraSocial::enumerar_obrassociales();
 
-        return redirect()->route('envio.listar')->with([
+        return redirect()->route('envio.lista')->with([
             'envios' => $lista,
             'obrassociales' => $obrassociales
         ]);

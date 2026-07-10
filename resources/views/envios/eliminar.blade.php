@@ -19,7 +19,7 @@
             <h2>Formulario de Eliminacion de Envio</h2>
         </div>
 
-        <form method="POST" action="{{ route('envio.eliminar',$envio) }}">
+        <form method="POST" action="{{ route('envio.borrar',$envio) }}">
             @csrf
 
             <div>
@@ -50,7 +50,7 @@
             @endif
 
             <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('usuario.back') }}">
+                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('envio.back') }}">
                     {{ __('Cancelar') }}
                 </a>
 

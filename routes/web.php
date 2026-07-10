@@ -58,10 +58,11 @@ Route::middleware('auth')->group(function(){
     Route::get('/envio/eliminar/{id}',[Controlador_Envio::class,'delete'])->name('envio.eliminar');
 
     Route::post('/envio/actualizar',[Controlador_Envio::class,'edit'])->name('envio.actualizar');
-    Route::post('/envio/borrar',[Controlador_Envio::class,'borrar'])->name('envio.borrar');
+    Route::post('/envio/borrar',[Controlador_Envio::class,'drop'])->name('envio.borrar');
     Route::get('/envio/comprobante',[Controlador_Envio::class,'comprobante'])->name('envio.comprobante');
     Route::match(['get','post'],'/envio/buscar',[Controlador_Envio::class,'buscar'])->name('envio.buscar');
     Route::get('/envio/descargar/{id}', [Controlador_Envio::class, 'descargarDocumento'])->name('envio.descargar');
+    Route::get('/envio/back',[Controlador_Envio::class,'back'])->name('envio.back');
 });
 
 Route::middleware('auth')->group(function(){
