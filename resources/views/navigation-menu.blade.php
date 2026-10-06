@@ -13,7 +13,12 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-jet-nav-link href="{{ route('envio.index') }}" :active="request()->routeIs('dashboard')">
-                        {{ __('Envios') }}
+                        {{ __('Cargar Archivo') }}
+                    </x-jet-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-jet-nav-link href="{{ route('envio.carpeta') }}" :active="request()->routeIs('envio.carpeta')">
+                        {{ __('Cargar Carpeta') }}
                     </x-jet-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">

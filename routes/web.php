@@ -8,7 +8,7 @@ use App\Http\Controllers\Controlador_ObraSocial;
 use App\Http\Controllers\Controlador_Prestador;
 use App\Http\Controllers\Controlador_Rol;
 use App\Http\Controllers\Controlador_Area;
-
+use App\Http\Controllers\Controlador_Plan;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function(){
 Route::middleware('auth')->group(function(){
     Route::post('/envio/registrar',[Controlador_Envio::class,'registrar'])->name('envio.registrar');
     Route::get('/envio/index',[Controlador_Envio::class,'index'])->name('envio.index');
+    Route::get('/envio/carpeta',[Controlador_Envio::class,'carpeta'])->name('envio.carpeta');
     Route::get('/envio/lista',[Controlador_Envio::class,'listar'])->name('envio.lista');
     Route::get('/envio/modificar/{id}',[Controlador_Envio::class,'update'])->name('envio.modificar');
     Route::get('/envio/eliminar/{id}',[Controlador_Envio::class,'delete'])->name('envio.eliminar');
@@ -133,4 +134,18 @@ Route::middleware('auth')->group(function(){
     Route::post('/area/search/',[Controlador_Area::class,'search'])->name('area.search');
 
     Route::get('/area/back',[Controlador_Area::class,'back'])->name('area.back');
+});
+
+Route::middleware('auth')->group(function(){
+    Route::get('/plan/listar',[Controlador_Plan::class,'list'])->name('plan.listar');
+    Route::get('/plan/agregar',[Controlador_Plan::class,'register'])->name('plan.registrar');
+    Route::get('/plan/modificar/{id}',[Controlador_Plan::class,'update'])->name('plan.modificar');
+    Route::get('/plan/eliminar/{id}',[Controlador_Plan::class,'delete'])->name('plan.eliminar');
+
+    Route::post('/plan/insert',[Controlador_Plan::class,'insert'])->name('plan.insertar');
+    Route::post('/plan/edit/{id}',[Controlador_Plan::class,'edit'])->name('plan.actualizar');
+    Route::post('/plan/delete/{id}',[Controlador_Plan::class,'drop'])->name('plan.borrar');
+    Route::post('/plan/search/',[Controlador_Plan::class,'search'])->name('plan.search');
+
+    Route::get('/plan/back',[Controlador_Plan::class,'back'])->name('plan.back');
 });

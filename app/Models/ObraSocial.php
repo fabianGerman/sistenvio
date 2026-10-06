@@ -70,4 +70,5 @@ class ObraSocial extends Model
         ->get();
         return $result;
     }
+
 }

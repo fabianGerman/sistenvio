@@ -22,6 +22,10 @@ class Controlador_Envio extends Controller
         ]);
     }
 
+    public function carpeta(){
+        return view('envios.enviocarpeta');
+    }
+
     public function listar()
     {
 
@@ -43,128 +47,425 @@ class Controlador_Envio extends Controller
 
     public function registrar(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR
+        |--------------------------------------------------------------------------
+        */
 
         $request->validate([
-
             'periodo' => 'required',
-            'prestador' => 'required',
-            'afiliado' => 'required',
-            'prestacion' => 'required',
-            'documentacion' => 'required|file|mimes:pdf,zip,rar|max:20480'
+            'documentacion' => 'required|array|min:1',
+            'documentacion.*' => 'required|file|mimes:pdf,zip,rar|max:20480'
         ]);
 
-
-        $obrassociales = intval($request->input('obrassociales'));
-        $obrasocial = $request->input('obrasocial');
         $periodo = $request->input('periodo');
-        $prestador = $request->input('prestador');
-        $afiliado = $request->input('afiliado');
-        $prestacion = $request->input('prestacion');
+
+        $archivos = $request->file('documentacion');
 
         /*
         |--------------------------------------------------------------------------
-        | SUBIR DOCUMENTO
+        | PRIMERO VALIDAR TODOS LOS NOMBRES
         |--------------------------------------------------------------------------
+        |
+        | De esta forma evitamos comenzar a registrar archivos y descubrir
+        | después que uno de ellos tiene un nombre incorrecto.
+        |
         */
 
-        $archivo = $request->file('documentacion');
+        $archivosProcesar = [];
 
-        $archivo_nombre = time() . '_' . $archivo->getClientOriginalName();
+        foreach ($archivos as $archivo) {
 
-        $archivo_path = $archivo->storeAs(
-            'documentos',
-            $archivo_nombre,
-            'public'
-        );
+            /*
+            |--------------------------------------------------------------------------
+            | DESGLOSAR NOMBRE DEL ARCHIVO
+            |--------------------------------------------------------------------------
+            */
 
-        /*
-        |--------------------------------------------------------------------------
-        | CREAR AFILIADO SI NO EXISTE
-        |--------------------------------------------------------------------------
-        */
+            $auxiliar = $this->desglosarNombreArchivo(
+                $archivo->getClientOriginalName()
+            );
 
-        $buscar_afiliado = Afiliado::where(
-            'af_numero',
-            $afiliado
-        )->first();
+            if ($auxiliar === null) {
 
-        if ($buscar_afiliado == null) {
+                return back()
+                    ->withErrors([
+                        'documentacion' =>
+                            'El archivo "' .
+                            $archivo->getClientOriginalName() .
+                            '" no tiene el formato correcto.'
+                    ])
+                    ->withInput();
+            }
 
-            $afiliado_agregar = new Afiliado();
-            $afiliado_agregar->af_numero = $afiliado;
-            $afiliado_agregar->af_cuil = "NO COMPLETADO";
-            $afiliado_agregar->af_nombres = "NO COMPLETADO";
-            $afiliado_agregar->save();
+            /*
+            |--------------------------------------------------------------------------
+            | OBTENER RUTA ORIGINAL
+            |--------------------------------------------------------------------------
+            |
+            | Ejemplo:
+            |
+            | OSECAC/PLAN UNICO/archivo.pdf
+            |
+            */
 
-            $buscar_afiliado = $afiliado_agregar;
+            if (method_exists($archivo, 'getClientOriginalPath')) {
+
+                $rutaOriginal = $archivo->getClientOriginalPath();
+
+            } else {
+
+                $rutaOriginal = $archivo->getClientOriginalName();
+            }
+
+            // Normalizar separadores
+            $rutaOriginal = str_replace('\\', '/', $rutaOriginal);
+
+            $partesRuta = explode('/', $rutaOriginal);
+
+            // Sacamos el nombre del archivo
+            array_pop($partesRuta);
+
+            /*
+            |--------------------------------------------------------------------------
+            | OBTENER PLAN DESDE LA CARPETA
+            |--------------------------------------------------------------------------
+            |
+            | OSECAC/PLAN UNICO/archivo.pdf
+            |
+            | La carpeta inmediatamente anterior al archivo será:
+            |
+            | PLAN UNICO
+            |
+            */
+
+            $planNombre = null;
+
+            if (count($partesRuta) > 0) {
+                $planNombre = end($partesRuta);
+            }
+
+            $archivosProcesar[] = [
+                'archivo' => $archivo,
+                'datos' => $auxiliar,
+                'plan' => $planNombre
+            ];
         }
 
+
         /*
         |--------------------------------------------------------------------------
-        | CREAR PRESTADOR SI NO EXISTE
+        | PROCESAR TODOS LOS ARCHIVOS
         |--------------------------------------------------------------------------
         */
 
-        $buscar_prestador = Prestador::where(
-            'prest_nombre',
-            $prestador
-        )->first();
+        foreach ($archivosProcesar as $item) {
 
-        if ($buscar_prestador == null) {
+            $archivo = $item['archivo'];
 
-            $prestador_agregar = new Prestador();
-            $prestador_agregar->prest_nombre = $prestador;
-            $prestador_agregar->save();
+            $auxiliar = $item['datos'];
 
-            $buscar_prestador = $prestador_agregar;
+            //$planNombre = $item['plan'];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DATOS OBTENIDOS DEL NOMBRE DEL ARCHIVO
+            |--------------------------------------------------------------------------
+            */
+
+            $obrasocial = $auxiliar['obrasocial'];
+
+            $numeroprestacion = $auxiliar['numeroprestacion'];
+
+            $practica = $auxiliar['practica'];
+
+            $nombre = $auxiliar['nombre'];
+
+            $nroafiliado = $auxiliar['nroafiliado'];
+
+            $matricula = $auxiliar['matricula'];
+
+            $nombremedico = $auxiliar['nombremedico'];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BUSCAR OBRA SOCIAL
+            |--------------------------------------------------------------------------
+            */
+
+            $buscar_obrasocial = ObraSocial::where(
+                'os_siglas',
+                $obrasocial
+            )->first();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CREAR OBRA SOCIAL SI NO EXISTE
+            |--------------------------------------------------------------------------
+            */
+
+            if ($buscar_obrasocial == null) {
+
+                $obrasocial_agregar = new ObraSocial();
+
+                $obrasocial_agregar->os_nombre = $obrasocial;
+
+                /*
+                | IMPORTANTE:
+                | Como buscas por os_siglas, también debemos guardar os_siglas.
+                */
+
+                $obrasocial_agregar->os_siglas = $obrasocial;
+
+                $obrasocial_agregar->save();
+
+                $buscar_obrasocial = $obrasocial_agregar;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BUSCAR PLAN
+            |--------------------------------------------------------------------------
+            */
+
+            $buscar_plan = null;
+    /*
+            if ($planNombre != null) {
+
+                $buscar_plan = Plan::where(
+                        'plan_nombre',
+                        $planNombre
+                    )
+                    ->where(
+                        'pl_obrasocial',
+                        $buscar_obrasocial->id
+                    )
+                    ->first();
+    */
+
+                /*
+                |--------------------------------------------------------------------------
+                | CREAR PLAN SI NO EXISTE
+                |--------------------------------------------------------------------------
+                */
+/*
+                if ($buscar_plan == null) {
+
+                    $plan_agregar = new Plan();
+
+                    $plan_agregar->plan_nombre = $planNombre;
+
+                    $plan_agregar->pl_obrasocial =
+                        $buscar_obrasocial->id;
+
+                    $plan_agregar->save();
+
+                    $buscar_plan = $plan_agregar;
+                }
+            }
+*/
+
+            /*
+            |--------------------------------------------------------------------------
+            | BUSCAR AFILIADO
+            |--------------------------------------------------------------------------
+            */
+
+            $buscar_afiliado = Afiliado::where(
+                'af_numero',
+                $nroafiliado
+            )->first();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CREAR AFILIADO SI NO EXISTE
+            |--------------------------------------------------------------------------
+            */
+
+            if ($buscar_afiliado == null) {
+
+                $afiliado_agregar = new Afiliado();
+
+                $afiliado_agregar->af_numero =
+                    $nroafiliado;
+
+                $afiliado_agregar->af_cuil =
+                    "NO COMPLETADO";
+
+                $afiliado_agregar->af_nombres =
+                    $nombre;
+
+                $afiliado_agregar->save();
+
+                $buscar_afiliado = $afiliado_agregar;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BUSCAR PRESTADOR
+            |--------------------------------------------------------------------------
+            */
+
+            $buscar_prestador = Prestador::where(
+                'prest_nombre',
+                $nombremedico
+            )->first();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CREAR PRESTADOR SI NO EXISTE
+            |--------------------------------------------------------------------------
+            */
+
+            if ($buscar_prestador == null) {
+
+                $prestador_agregar = new Prestador();
+
+                $prestador_agregar->prest_nombre =
+                    $nombremedico;
+
+                /*
+                | Si tienes la columna:
+                |
+                | $prestador_agregar->prest_matricula = $matricula;
+                */
+
+                $prestador_agregar->save();
+
+                $buscar_prestador = $prestador_agregar;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DEFINIR CARPETA DE DESTINO
+            |--------------------------------------------------------------------------
+            |
+            | Si el archivo viene desde:
+            |
+            | OSECAC/PLAN UNICO/archivo.pdf
+            |
+            | se guardará en:
+            |
+            | documentos/OSECAC/PLAN UNICO/
+            |
+            */
+
+            $carpetaDestino = 'documentos';
+
+            if ($planNombre != null) {
+
+                // Limpiar caracteres peligrosos en nombres de carpetas
+                $obraCarpeta = preg_replace(
+                    '/[^A-Za-z0-9 _.-]/u',
+                    '',
+                    $obrasocial
+                );
+
+                $planCarpeta = preg_replace(
+                    '/[^A-Za-z0-9 _.-]/u',
+                    '',
+                    $planNombre
+                );
+
+                $carpetaDestino .=
+                    '/' .
+                    $obraCarpeta .
+                    '/' .
+                    $planCarpeta;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUBIR DOCUMENTO
+            |--------------------------------------------------------------------------
+            */
+
+            $archivo_nombre =
+                time() .
+                '_' .
+                uniqid() .
+                '_' .
+                $archivo->getClientOriginalName();
+
+            $archivo_path = $archivo->storeAs(
+                $carpetaDestino,
+                $archivo_nombre,
+                'public'
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GUARDAR ENVÍO
+            |--------------------------------------------------------------------------
+            */
+
+            $envio_agregar = new Envio();
+
+            $envio_agregar->env_afiliado =
+                $buscar_afiliado->id;
+
+            $envio_agregar->env_obrasocial =
+                $buscar_obrasocial->id;
+
+            /*
+            | Si el archivo fue cargado desde una carpeta con plan,
+            | guardamos el ID del plan.
+            */
+    /*
+            if ($buscar_plan != null) {
+
+                $envio_agregar->env_plan =
+                    $buscar_plan->id;
+            }
+    */
+            $envio_agregar->env_prestador =
+                $buscar_prestador->id;
+
+            $envio_agregar->env_periodo =
+                $periodo;
+
+            $envio_agregar->env_prestacion =
+                $numeroprestacion;
+
+            $envio_agregar->env_documento =
+                $archivo_path;
+
+            $envio_agregar->env_usuario =
+                Auth::id();
+
+            $envio_agregar->save();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GENERAR PDF / COMPROBANTE
+            |--------------------------------------------------------------------------
+            */
+
+            $this->generarPDF(
+                $envio_agregar->id
+            );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CREAR OBRA SOCIAL SI NO EXISTE
-        |--------------------------------------------------------------------------
-        */
-
-        $buscar_obrasocial = ObraSocial::buscar_obrasocial($obrassociales)->first();
-
-        if ($buscar_obrasocial == null) {
-
-            $obrasocial_agregar = new ObraSocial();
-            $obrasocial_agregar->os_nombre = $obrassociales == 0 ? $obrasocial : ObraSocial::where('id', $obrassociales)->first()->SIGLAS;
-            $obrasocial_agregar->save();
-
-            $buscar_obrasocial = $obrasocial_agregar;
-        }
 
         /*
         |--------------------------------------------------------------------------
-        | GUARDAR ENVIO
+        | TERMINAR
         |--------------------------------------------------------------------------
         */
 
-        $envio_agregar = new Envio();
-
-        $envio_agregar->env_afiliado = $buscar_afiliado->id;
-        $envio_agregar->env_obrasocial = $buscar_obrasocial->ID;
-        $envio_agregar->env_prestador = $buscar_prestador->id;
-        $envio_agregar->env_periodo = $periodo;
-        $envio_agregar->env_prestacion = $prestacion;
-
-        // DOCUMENTO SUBIDO
-        $envio_agregar->env_documento = $archivo_path;
-        //$envio_agregar->env_comprobante = null;
-
-        $envio_agregar->env_usuario = Auth::id();
-
-        $envio_agregar->save();
-
-        /*
-        |--------------------------------------------------------------------------
-        | GENERAR PDF
-        |--------------------------------------------------------------------------
-        */
-
-        return $this->generarPDF($envio_agregar->id);
+        return $this->listar();
     }
 
     public function buscar(Request $request)
@@ -485,8 +786,7 @@ class Controlador_Envio extends Controller
             $usuario->id
         );
 
-        return redirect()->route('envio.lista')
-        ->with('success', 'Envío actualizado correctamente.');
+        return redirect()->route('envio.lista')->with('success', 'Envío actualizado correctamente.');
     }
 
     public function drop(Request $request)
@@ -506,5 +806,45 @@ class Controlador_Envio extends Controller
             'envios' => $lista,
             'obrassociales' => $obrassociales
         ]);
+    }
+
+    public function desglosarNombreArchivo($nombreArchivo){
+
+        //quitar extension
+        $nombreArchivo = pathinfo($nombreArchivo, PATHINFO_FILENAME);
+
+        //separar por giones
+        $partes = explode('-', $nombreArchivo);
+
+        //validdar cantidad minima de partes
+        if(count($partes) < 11){
+            return null;
+        }
+
+        $obrasocial = $partes[0];
+        $numeroprestacion = $partes[1];
+        $practica = $partes[2];
+
+        //el nombre puede tener cualquier cantidad de caracteres, por lo que se toma todo lo que queda hasta el penultimo guion
+        $nombre = str_replace('_',' ', $partes[3]);
+
+        //afiliado
+        $nroafiliado = $partes[4].'/'.$partes[5];
+
+        $matricula = $partes[6];
+
+        $nombremedico = $partes[7];
+
+        //dd($obrasocial, $numeroprestacion, $practica, $nombre, $nroafiliado, $matricula, $nombremedico);
+
+        return [
+            'obrasocial' => $obrasocial,
+            'numeroprestacion' => $numeroprestacion,
+            'practica' => $practica,
+            'nombre' => $nombre,
+            'nroafiliado' => $nroafiliado,
+            'matricula' => $matricula,
+            'nombremedico' => $nombremedico
+        ];
     }
 }

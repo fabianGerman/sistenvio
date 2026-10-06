@@ -25,6 +25,7 @@
                             <x-jet-input id="documentacion" class="block mt-1 w-full" type="file" name="documentacion" accept=".pdf,.zip,.rar" required autofocus />
                         </div>
 
+                        <!--
                         <div class="mt-4">
                             <x-jet-label for="obrassociales" value="OBRA SOCIAL" />
                             <select name="obrassociales" id="obrassociales">
@@ -35,12 +36,12 @@
                                 @endforeach
                             </select>
                         </div>
-
+                        -->
                         <div class="mt-4">
                             <x-jet-label for="periodo" value="{{ __('PERIODO') }}" />
                             <x-jet-input id="periodo" class="block mt-1 w-full" type="text" name="periodo" :value="old('periodo')" required autofocus autocomplete="address" placeholder="mm/yyyy"/>
                         </div>
-
+                        <!--
                         <div class="mt-4">
                             <x-jet-label for="prestador" value="{{ __('MATRICULA DE PRESTADOR') }}" />
                             <x-jet-input id="prestador" class="block mt-1 w-full" type="text" name="prestador" :value="old('prestador')" required autofocus autocomplete="phone"/>
@@ -55,6 +56,7 @@
                             <x-jet-label for="afiliado" value="{{ __('NUMERO AFILIADO') }}" />
                             <x-jet-input id="afiliado" class="block mt-1 w-full" type="text" name="afiliado" :value="old('afiliado')" required autofocus autocomplete="phone" placeholder="xxxxxxxxxxx/xx"/>
                         </div>
+                        -->
                         <div class="flex items-center justify-end mt-4">
                             <x-jet-button class="ml-4">
                                 {{ __('ENVIAR') }}

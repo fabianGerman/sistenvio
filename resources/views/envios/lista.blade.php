@@ -112,6 +112,7 @@
                                 <th class="px-4 py-2">AFILIADO</th>
                                 <th class="px-4 py-2">PRESTADOR</th>
                                 <th class="px-4 py-2">OBRA SOCIAL</th>
+                                <th class="px-4 py-2">PLAN</th>
                                 <th class="px-4 py-2">PERIODO</th>
                                 <th class="px-4 py-2">Nª PRESTACION</th>
                                 <th class="px-4 py-2">FECHA DE CARGA</th>
@@ -127,6 +128,7 @@
                                     <td class="border px-4 py-2">{{ $envio->AFILIADO }}</td>
                                     <td class="border px-4 py-2">{{ $envio->PRESTADOR }}</td>
                                     <td class="border px-4 py-2">{{ $envio->OBRASOCIAL }}</td>
+                                    <td class="border px-4 py-2">{{ $envio->PLAN }}</td>
                                     <td class="border px-4 py-2">{{ $envio->PERIODO }}</td>
                                     <td class="border px-4 py-2">{{ $envio->PRESTACION }}</td>
                                     <td class="border px-4 py-2">{{ $envio->FECHACREACION }}</td>

@@ -32,7 +32,7 @@ class Controlador_ObraSocial extends Controller
     }
 
     /**
-     * 
+     *
      */
 
     public function insert(Request $request){
