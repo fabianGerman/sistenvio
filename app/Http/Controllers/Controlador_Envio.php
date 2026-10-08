@@ -528,7 +528,7 @@ class Controlador_Envio extends Controller
         if (!empty($buscar)) {
             $query->where(function ($q) use ($buscar) {
                 $q->where('afiliados.af_nombres', 'LIKE', "%{$buscar}%")
-                ->orWhere('prestadors.prest_nombre', 'LIKE', "%{$buscar}%")
+                ->orWhere('prestadors.prest_matricula', 'LIKE', "%{$buscar}%")
                 ->orWhere('obra_socials.os_siglas', 'LIKE', "%{$buscar}%")
                 ->orWhere('envios.env_prestacion', 'LIKE', "%{$buscar}%");
             });
@@ -548,7 +548,7 @@ class Controlador_Envio extends Controller
                 'envios.created_at as FECHACREACION',
                 'envios.id',
                 'afiliados.af_nombres as AFILIADO',
-                'prestadors.prest_nombre as PRESTADOR',
+                'prestadors.prest_matricula as PRESTADOR',
                 'obra_socials.os_siglas as OBRASOCIAL',
                 'envios.env_periodo as PERIODO',
                 'envios.env_prestacion as PRESTACION',
