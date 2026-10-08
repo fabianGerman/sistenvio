@@ -48,6 +48,7 @@ class Controlador_Envio extends Controller
 
     public function registrar(Request $request)
     {
+        set_time_limit(30000000); // Aumentar el tiempo de ejecución a 30,000 segundos (aproximadamente 8.3 horas)
         /*
         |--------------------------------------------------------------------------
         | VALIDAR
@@ -259,7 +260,7 @@ class Controlador_Envio extends Controller
 
                     $plan_agregar = new Plan();
 
-                    $plan_agregar->plan_nombre = $planNombre;
+                    $plan_agregar->pl_nombre = $planNombre;
 
                     $plan_agregar->pl_obrasocial =
                         $buscar_obrasocial->id;
