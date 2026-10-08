@@ -548,7 +548,7 @@ class Controlador_Envio extends Controller
                 'envios.created_at as FECHACREACION',
                 'envios.id',
                 'afiliados.af_nombres as AFILIADO',
-                'prestadors.prest_matricula as PRESTADOR',
+                'prestadors.prest_matricula as MATRICULA',
                 'obra_socials.os_siglas as OBRASOCIAL',
                 'envios.env_periodo as PERIODO',
                 'envios.env_prestacion as PRESTACION',
@@ -559,7 +559,7 @@ class Controlador_Envio extends Controller
             ->appends($request->all());
 
         $obrassociales = ObraSocial::enumerar_obrassociales();
-
+        dump($envios);
         return view('envios.lista', [
             'envios' => $envios,
             'search' => $buscar,
