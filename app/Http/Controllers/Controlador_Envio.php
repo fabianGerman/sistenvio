@@ -7,6 +7,7 @@ use App\Models\Envio;
 use App\Models\ObraSocial;
 use App\Models\Prestador;
 use App\Models\Afiliado;
+use App\Models\Plan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -166,9 +167,9 @@ class Controlador_Envio extends Controller
 
             $auxiliar = $item['datos'];
 
-            //$planNombre = $item['plan'];
+            $planNombre = $auxiliar['plan'];
 
-
+            //dd($planNombre);
             /*
             |--------------------------------------------------------------------------
             | DATOS OBTENIDOS DEL NOMBRE DEL ARCHIVO
@@ -187,7 +188,7 @@ class Controlador_Envio extends Controller
 
             $matricula = $auxiliar['matricula'];
 
-            $nombremedico = $auxiliar['nombremedico'];
+            //$nombremedico = $auxiliar['nombremedico'];
 
 
             /*
@@ -234,11 +235,11 @@ class Controlador_Envio extends Controller
             */
 
             $buscar_plan = null;
-    /*
+
             if ($planNombre != null) {
 
                 $buscar_plan = Plan::where(
-                        'plan_nombre',
+                        'pl_nombre',
                         $planNombre
                     )
                     ->where(
@@ -246,14 +247,14 @@ class Controlador_Envio extends Controller
                         $buscar_obrasocial->id
                     )
                     ->first();
-    */
 
+                //dd($buscar_plan, $planNombre, $buscar_obrasocial);
                 /*
                 |--------------------------------------------------------------------------
                 | CREAR PLAN SI NO EXISTE
                 |--------------------------------------------------------------------------
                 */
-/*
+
                 if ($buscar_plan == null) {
 
                     $plan_agregar = new Plan();
@@ -268,7 +269,7 @@ class Controlador_Envio extends Controller
                     $buscar_plan = $plan_agregar;
                 }
             }
-*/
+
 
             /*
             |--------------------------------------------------------------------------
@@ -314,8 +315,8 @@ class Controlador_Envio extends Controller
             */
 
             $buscar_prestador = Prestador::where(
-                'prest_nombre',
-                $nombremedico
+                'prest_matricula',
+                $matricula
             )->first();
 
 
@@ -329,8 +330,8 @@ class Controlador_Envio extends Controller
 
                 $prestador_agregar = new Prestador();
 
-                $prestador_agregar->prest_nombre =
-                    $nombremedico;
+                $prestador_agregar->prest_matricula =
+                    $matricula;
 
                 /*
                 | Si tienes la columna:
@@ -422,13 +423,13 @@ class Controlador_Envio extends Controller
             | Si el archivo fue cargado desde una carpeta con plan,
             | guardamos el ID del plan.
             */
-    /*
+
             if ($buscar_plan != null) {
 
                 $envio_agregar->env_plan =
                     $buscar_plan->id;
             }
-    */
+
             $envio_agregar->env_prestador =
                 $buscar_prestador->id;
 
@@ -808,43 +809,289 @@ class Controlador_Envio extends Controller
         ]);
     }
 
-    public function desglosarNombreArchivo($nombreArchivo){
+    public function desglosarNombreArchivo($nombreArchivo)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | QUITAR EXTENSIÓN
+        |--------------------------------------------------------------------------
+        */
 
-        //quitar extension
-        $nombreArchivo = pathinfo($nombreArchivo, PATHINFO_FILENAME);
+        $nombreArchivo = pathinfo(
+            $nombreArchivo,
+            PATHINFO_FILENAME
+        );
 
-        //separar por giones
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEPARAR POR GUIONES
+        |--------------------------------------------------------------------------
+        */
+
         $partes = explode('-', $nombreArchivo);
 
-        //validdar cantidad minima de partes
-        if(count($partes) < 11){
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDACIÓN BÁSICA
+        |--------------------------------------------------------------------------
+        */
+
+        if (count($partes) < 13) {
             return null;
         }
 
-        $obrasocial = $partes[0];
-        $numeroprestacion = $partes[1];
-        $practica = $partes[2];
 
-        //el nombre puede tener cualquier cantidad de caracteres, por lo que se toma todo lo que queda hasta el penultimo guion
-        $nombre = str_replace('_',' ', $partes[3]);
+        /*
+        |--------------------------------------------------------------------------
+        | OBRA SOCIAL
+        |--------------------------------------------------------------------------
+        |
+        | Ejemplo:
+        | 133(OSECAC)
+        |
+        */
 
-        //afiliado
-        $nroafiliado = $partes[4].'/'.$partes[5];
+        if (!preg_match(
+            '/^(\d+)\(([^)]+)\)$/',
+            trim($partes[0]),
+            $resultadoOS
+        )) {
+            return null;
+        }
 
-        $matricula = $partes[6];
+        $codigoObrasocial = $resultadoOS[1];
 
-        $nombremedico = $partes[7];
+        $obrasocial = $resultadoOS[2];
 
-        //dd($obrasocial, $numeroprestacion, $practica, $nombre, $nroafiliado, $matricula, $nombremedico);
+
+        /*
+        |--------------------------------------------------------------------------
+        | PLAN
+        |--------------------------------------------------------------------------
+        |
+        | PLAN_UNICO -> PLAN UNICO
+        |
+        */
+
+        $plan = str_replace(
+            '_',
+            ' ',
+            trim($partes[1])
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRESTACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        $numeroprestacion = trim(
+            $partes[2]
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRÁCTICAS
+        |--------------------------------------------------------------------------
+        |
+        | Puede haber una o varias:
+        |
+        | 34.02.09
+        | 34.02.10
+        | 34.09.10
+        |
+        */
+
+        $indice = 3;
+
+        $practicas = [];
+
+        while (
+            isset($partes[$indice]) &&
+            preg_match(
+                '/^\d+(?:\.\d+){2}$/',
+                trim($partes[$indice])
+            )
+        ) {
+
+            $practicas[] = trim(
+                $partes[$indice]
+            );
+
+            $indice++;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR QUE HAYA AL MENOS UNA PRÁCTICA
+        |--------------------------------------------------------------------------
+        */
+
+        if (count($practicas) == 0) {
+            return null;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DIAGNÓSTICO
+        |--------------------------------------------------------------------------
+        */
+
+        if (!isset($partes[$indice])) {
+            return null;
+        }
+
+        $diagnostico = trim(
+            $partes[$indice]
+        );
+
+        $indice++;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOMBRE DEL AFILIADO
+        |--------------------------------------------------------------------------
+        */
+
+        if (!isset($partes[$indice])) {
+            return null;
+        }
+
+        $nombre = str_replace(
+            '_',
+            ' ',
+            trim($partes[$indice])
+        );
+
+        $indice++;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATOS RESTANTES
+        |--------------------------------------------------------------------------
+        |
+        | nro afiliado parte 1
+        | nro afiliado parte 2
+        | autorización
+        | matrícula
+        | día
+        | mes
+        | año
+        |
+        */
+
+        if ((count($partes) - $indice) < 7) {
+            return null;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NÚMERO DE AFILIADO
+        |--------------------------------------------------------------------------
+        */
+
+        $nroafiliado =
+            trim($partes[$indice]) .
+            '-' .
+            trim($partes[$indice + 1]);
+
+        $indice += 2;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NÚMERO DE AUTORIZACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        $numeroautorizacion =
+            trim($partes[$indice]);
+
+        $indice++;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MATRÍCULA PROFESIONAL
+        |--------------------------------------------------------------------------
+        */
+
+        $matricula =
+            trim($partes[$indice]);
+
+        $indice++;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FECHA DE PRÁCTICA
+        |--------------------------------------------------------------------------
+        */
+
+        $dia = trim($partes[$indice]);
+
+        $mes = trim($partes[$indice + 1]);
+
+        $anio = trim($partes[$indice + 2]);
+
+        $fechapractica =
+            $dia . '-' .
+            $mes . '-' .
+            $anio;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETORNAR DATOS
+        |--------------------------------------------------------------------------
+        */
 
         return [
-            'obrasocial' => $obrasocial,
-            'numeroprestacion' => $numeroprestacion,
-            'practica' => $practica,
-            'nombre' => $nombre,
-            'nroafiliado' => $nroafiliado,
-            'matricula' => $matricula,
-            'nombremedico' => $nombremedico
+
+            'codigo_obrasocial' =>
+                $codigoObrasocial,
+
+            'obrasocial' =>
+                $obrasocial,
+
+            'plan' =>
+                $plan,
+
+            'numeroprestacion' =>
+                $numeroprestacion,
+
+            'practicas' =>
+                $practicas,
+
+            'practica' =>
+                implode(' / ', $practicas),
+
+            'diagnostico' =>
+                $diagnostico,
+
+            'nombre' =>
+                $nombre,
+
+            'nroafiliado' =>
+                $nroafiliado,
+
+            'numeroautorizacion' =>
+                $numeroautorizacion,
+
+            'matricula' =>
+                $matricula,
+
+            'fechapractica' =>
+                $fechapractica
         ];
     }
 }

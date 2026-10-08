@@ -52,13 +52,13 @@ class Envio extends Model
                 'obra_socials.id',
                 '=',
                 'envios.env_obrasocial'
-            )/*
+            )
             ->join(
                 'plans',
                 'plans.id',
                 '=',
                 'envios.env_plan'
-            )*/
+            )
             ->join(
                 'users',
                 'users.id',
@@ -72,11 +72,11 @@ class Envio extends Model
                 'afiliados.af_numero as AFILIADO',
                 'afiliados.af_nombres as AFILIADONOMBRE',
 
-                'prestadors.prest_nombre as PRESTADOR',
+                'prestadors.prest_matricula as MATRICULA',
 
                 'obra_socials.os_siglas as OBRASOCIAL',
 
-                //'plans.plan_nombre as PLAN',
+                'plans.pl_nombre as PLAN',
 
                 'envios.env_periodo as PERIODO',
                 'envios.env_prestacion as PRESTACION',

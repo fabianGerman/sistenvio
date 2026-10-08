@@ -126,7 +126,7 @@
                             @foreach ($envios as $envio)
                                 <tr>
                                     <td class="border px-4 py-2">{{ $envio->AFILIADO }}</td>
-                                    <td class="border px-4 py-2">{{ $envio->PRESTADOR }}</td>
+                                    <td class="border px-4 py-2">{{ $envio->MATRICULA }}</td>
                                     <td class="border px-4 py-2">{{ $envio->OBRASOCIAL }}</td>
                                     <td class="border px-4 py-2">{{ $envio->PLAN }}</td>
                                     <td class="border px-4 py-2">{{ $envio->PERIODO }}</td>
