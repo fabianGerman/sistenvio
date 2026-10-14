@@ -671,6 +671,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
+    | CANTIDAD DE ARCHIVOS SIMULTÁNEOS
+    |--------------------------------------------------------------------------
+    */
+
+    const CONCURRENCIA = 4;
+
+
+    /*
+    |--------------------------------------------------------------------------
     | MOSTRAR ARCHIVOS SELECCIONADOS
     |--------------------------------------------------------------------------
     */
@@ -695,248 +704,301 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ENVIAR
+    | SUBIR UN ARCHIVO
     |--------------------------------------------------------------------------
     */
 
-    formulario.addEventListener('submit', async function (event) {
+    async function subirArchivo(archivo) {
 
-        event.preventDefault();
+        const formData = new FormData();
+
+        formData.append(
+            '_token',
+            '{{ csrf_token() }}'
+        );
+
+        formData.append(
+            'periodo',
+            periodo.value
+        );
+
+        formData.append(
+            'documentacion[]',
+            archivo,
+            archivo.name
+        );
 
 
-        const archivos =
-            Array.from(inputArchivos.files);
+        const respuesta = await fetch(
+            formulario.action,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+
+                body: formData
+            }
+        );
 
 
-        if (archivos.length === 0) {
+        if (!respuesta.ok) {
 
-            alert('Debe seleccionar una carpeta.');
+            let mensaje =
+                'Error al subir ' + archivo.name;
 
-            return;
+            try {
+
+                const error =
+                    await respuesta.json();
+
+                if (error.message) {
+                    mensaje = error.message;
+                }
+
+                if (error.errors) {
+
+                    mensaje =
+                        Object.values(error.errors)
+                            .flat()
+                            .join('\n');
+                }
+
+            } catch (e) {
+
+                const texto =
+                    await respuesta.text();
+
+                if (texto) {
+                    mensaje = texto;
+                }
+            }
+
+            throw new Error(mensaje);
         }
 
 
-        if (periodo.value.trim() === '') {
-
-            alert('Debe ingresar el periodo.');
-
-            return;
-        }
+        return await respuesta.json();
+    }
 
 
-        btnEnviar.disabled = true;
+    /*
+    |--------------------------------------------------------------------------
+    | ENVIAR FORMULARIO
+    |--------------------------------------------------------------------------
+    */
 
-        informacionCarga.style.display = 'block';
+    formulario.addEventListener(
+        'submit',
+        async function (event) {
+
+            event.preventDefault();
+
+            const archivos =
+                Array.from(inputArchivos.files);
 
 
-        try {
+            if (archivos.length === 0) {
+
+                alert(
+                    'Debe seleccionar una carpeta.'
+                );
+
+                return;
+            }
+
+
+            if (periodo.value.trim() === '') {
+
+                alert(
+                    'Debe ingresar el periodo.'
+                );
+
+                return;
+            }
+
+
+            btnEnviar.disabled = true;
+
+            informacionCarga.style.display =
+                'block';
+
+
+            let indice = 0;
+
+            let procesados = 0;
+
+            let errores = [];
+
 
             /*
             |--------------------------------------------------------------------------
-            | UN ARCHIVO = UN POST
+            | ACTUALIZAR PROGRESO
             |--------------------------------------------------------------------------
             */
 
-            for (
-                let i = 0;
-                i < archivos.length;
-                i++
-            ) {
+            function actualizarProgreso() {
 
-                const archivo = archivos[i];
+                const progreso =
+                    Math.round(
+                        (procesados / archivos.length)
+                        * 100
+                    );
 
+                barraProgreso.style.width =
+                    progreso + '%';
+
+                porcentaje.innerText =
+                    progreso + '%';
 
                 estadoCarga.innerText =
-                    'Subiendo archivo ' +
-                    (i + 1) +
+                    'Procesados ' +
+                    procesados +
                     ' de ' +
                     archivos.length +
-                    ': ' +
-                    archivo.name;
+                    ' archivos.';
+            }
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | CREAR FORMDATA
-                |--------------------------------------------------------------------------
-                */
+            /*
+            |--------------------------------------------------------------------------
+            | WORKER
+            |--------------------------------------------------------------------------
+            |
+            | Cada worker toma un archivo,
+            | lo sube y luego toma el siguiente.
+            |
+            */
 
-                const formData = new FormData();
+            async function worker() {
 
+                while (true) {
 
-                formData.append(
-                    '_token',
-                    '{{ csrf_token() }}'
-                );
+                    const posicion = indice++;
 
-
-                formData.append(
-                    'periodo',
-                    periodo.value
-                );
-
-
-                /*
-                | Aunque solamente enviamos uno,
-                | mantenemos documentacion[] porque
-                | Laravel espera un array.
-                */
-
-                formData.append(
-                    'documentacion[]',
-                    archivo,
-                    archivo.name
-                );
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | ENVIAR A LARAVEL
-                |--------------------------------------------------------------------------
-                */
-
-                const respuesta = await fetch(
-                    formulario.action,
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-
-                        body: formData
+                    if (posicion >= archivos.length) {
+                        return;
                     }
-                );
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | VERIFICAR RESPUESTA
-                |--------------------------------------------------------------------------
-                */
-
-                if (!respuesta.ok) {
-
-                    let mensaje =
-                        'Error al subir ' + archivo.name;
+                    const archivo =
+                        archivos[posicion];
 
 
                     try {
 
-                        const error =
-                            await respuesta.json();
+                        await subirArchivo(archivo);
 
+                    } catch (error) {
 
-                        if (error.message) {
+                        console.error(
+                            archivo.name,
+                            error
+                        );
 
-                            mensaje =
-                                error.message;
-                        }
+                        errores.push(
+                            archivo.name +
+                            ': ' +
+                            error.message
+                        );
 
+                    } finally {
 
-                        if (error.errors) {
+                        procesados++;
 
-                            mensaje =
-                                Object.values(
-                                    error.errors
-                                )
-                                .flat()
-                                .join('\n');
-                        }
-
-                    } catch (e) {
-
-                        const texto =
-                            await respuesta.text();
-
-                        if (texto) {
-                            mensaje = texto;
-                        }
-
+                        actualizarProgreso();
                     }
+                }
+            }
 
 
-                    throw new Error(
-                        mensaje
+            try {
+
+                /*
+                |--------------------------------------------------------------------------
+                | CREAR 3 WORKERS
+                |--------------------------------------------------------------------------
+                */
+
+                const workers = [];
+
+                for (
+                    let i = 0;
+                    i < CONCURRENCIA;
+                    i++
+                ) {
+
+                    workers.push(
+                        worker()
                     );
                 }
 
 
                 /*
                 |--------------------------------------------------------------------------
-                | ACTUALIZAR PROGRESO
+                | ESPERAR QUE TERMINEN TODOS
                 |--------------------------------------------------------------------------
                 */
 
-                const progreso =
-                    Math.round(
-                        ((i + 1) / archivos.length)
-                        * 100
+                await Promise.all(workers);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | RESULTADO
+                |--------------------------------------------------------------------------
+                */
+
+                if (errores.length > 0) {
+
+                    estadoCarga.innerText =
+                        'Carga finalizada con algunos errores.';
+
+                    alert(
+                        'La carga terminó, pero hubo errores:\n\n' +
+                        errores.join('\n')
                     );
 
+                } else {
 
-                barraProgreso.style.width =
-                    progreso + '%';
+                    barraProgreso.style.width =
+                        '100%';
+
+                    porcentaje.innerText =
+                        '100%';
+
+                    estadoCarga.innerText =
+                        'Todos los archivos fueron cargados correctamente.';
+
+                    alert(
+                        'Todos los archivos fueron procesados correctamente.'
+                    );
+                }
 
 
-                porcentaje.innerText =
-                    progreso + '%';
+                window.location.reload();
 
+
+            } catch (error) {
+
+                console.error(error);
 
                 estadoCarga.innerText =
-                    'Procesados ' +
-                    (i + 1) +
-                    ' de ' +
-                    archivos.length +
-                    ' archivos.';
+                    'Error durante la carga.';
 
+                alert(
+                    'Error:\n' +
+                    error.message
+                );
+
+            } finally {
+
+                btnEnviar.disabled = false;
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | FINALIZADO
-            |--------------------------------------------------------------------------
-            */
-
-            barraProgreso.style.width = '100%';
-
-            porcentaje.innerText = '100%';
-
-            estadoCarga.innerText =
-                'Todos los archivos fueron cargados correctamente.';
-
-
-            alert(
-                'Todos los archivos fueron procesados correctamente.'
-            );
-
-
-            window.location.reload();
-
-
-        } catch (error) {
-
-            console.error(error);
-
-
-            estadoCarga.innerText =
-                'La carga se interrumpió.';
-
-
-            alert(
-                'Error durante la carga:\n\n' +
-                error.message
-            );
-
-        } finally {
-
-            btnEnviar.disabled = false;
-
         }
-
-    });
+    );
 
 });
 </script>
